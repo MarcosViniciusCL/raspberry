@@ -1,5 +1,6 @@
 package controller
 
+import model.SalaEnum
 import java.io.*
 import java.net.BindException
 import java.net.ServerSocket
@@ -8,12 +9,17 @@ import java.net.SocketException
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ControllerListener(): Observable() {
+class ControllerListener(val controller: Controller): Observable() {
     private lateinit var server: Server
 
-    fun novaMensagem(msg: String){
-        if(!msg.equals("NADA")){
+    init {
+        addObserver(controller)
+    }
 
+    fun novaComando(msg: String){
+        if(!msg.equals("NADA")){
+            setChanged()
+            notifyObservers(msg.trim())
         }
     }
 
@@ -67,7 +73,7 @@ private class Server(var port: Int, var cont: ControllerListener){
 }
 
 private class Cliente(var s: Socket, var controllerListener: ControllerListener) {
-    var entrada = Scanner(InputStreamReader(s.getInputStream()))
+    var entrada = DataInputStream(s.getInputStream())
     var saida   = ObjectOutputStream(s.getOutputStream())
     var work = true
 
@@ -79,7 +85,7 @@ private class Cliente(var s: Socket, var controllerListener: ControllerListener)
         Thread(Runnable {
             while (work) {
                 Thread.sleep(500)
-                controllerListener.novaMensagem(lerMensagem())
+                controllerListener.novaComando(lerMensagem())
             }
         }).start()
     }
@@ -87,14 +93,17 @@ private class Cliente(var s: Socket, var controllerListener: ControllerListener)
     fun lerMensagem(): String{
         try {
             var msg:String? = ""
-            var inp = s.keepAlive
-            //msg = entrada.readLine()
-            while (entrada.hasNext() && !s.isClosed){
-                msg += "${entrada.next()} "
+            var b =  0
+            while (b != '\n'.toInt()){
+                b = entrada.read()
+                msg += b.toChar()
             }
+//            while (entrada.hasNext() && !s.isClosed){
+//                msg += "${entrada.next()} "
+//            }
             if(!msg.isNullOrEmpty())
-                println("${s.remoteSocketAddress} -> $msg")
-            return msg ?: "NADA"
+                println("${s.remoteSocketAddress} -> ${msg?.replace("\n", "")}")
+            return msg?.replace("\n", "")?.trim() ?: "NADA"
         } catch (e: EOFException){
             close()
             return "NADA"

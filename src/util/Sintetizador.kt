@@ -22,10 +22,11 @@ class Sintetizador {
 
     fun ditarTexto(texto: String, listener: (indexLinha: Int) -> Any){
         var list = texto.split('.')
-        list.forEachIndexed({i, s ->
-            executar(s)
-            listener(i+1)
-        })
+        executar(texto)
+//        list.forEachIndexed({i, s ->
+//            executar(s)
+//            listener(i+1)
+//        })
         listener(-1) // <-- Informa que a mensagem acabou
     }
 }

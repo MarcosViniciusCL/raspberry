@@ -19,6 +19,9 @@ class Controller(var frame: TelaInicial): Observer, Observable(){
         controllerListener.iniciarServidor(3333)
     }
 
+    fun salaApresentada(){
+        controllerListener.enviar("END")
+    }
 
     override fun update(o: Observable?, arg: Any?) {
         var cmd = arg as String

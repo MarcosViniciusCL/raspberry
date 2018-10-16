@@ -5,6 +5,7 @@ import model.Laboratorio
 import util.Sintetizador
 import java.awt.Component
 import java.awt.Dimension
+import java.awt.Font
 import java.awt.Frame
 import java.awt.event.ActionEvent
 import java.awt.event.InputEvent
@@ -39,6 +40,9 @@ class TelaInicial(title: String): JFrame(title), Observer {
             textPaneTexto.text = l.textoFala
             textFieldNome.text = l.numeroSala
             var f: (i:Int) -> Unit = {
+                if(it == -1){
+                    controller.salaApresentada()
+                }
                 println(it)
             }
             sintetizador.ditarTexto(l.textoFala, f)
@@ -57,6 +61,8 @@ class TelaInicial(title: String): JFrame(title), Observer {
         this.add(painel)
         textPaneTexto.isEditable = false
         textFieldNome.isEditable = false
+        textFieldNome.font = Font("Dialog", Font.PLAIN, 40)
+        textPaneTexto.font = Font("Dialog", Font.PLAIN, 20)
         
         var actMap = painel.actionMap
         actMap.put("fechar", actionFechar)
@@ -67,7 +73,7 @@ class TelaInicial(title: String): JFrame(title), Observer {
 
         textFieldNome.text = "MV"
         textFieldNome.horizontalAlignment = SwingConstants.CENTER
-        textPaneTexto.text = "TEXTOZAO"
+        textPaneTexto.text = "SISTEMA DE APRESENTAÇÃO"
 
         val doc = textPaneTexto.getStyledDocument()
         val center = SimpleAttributeSet()
@@ -83,7 +89,7 @@ class TelaInicial(title: String): JFrame(title), Observer {
         this.setSize(800,600)
         this.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
         this.extendedState = Frame.MAXIMIZED_BOTH
-        //this.isUndecorated = true
+        this.isUndecorated = true
         this.setLocationRelativeTo(null)
         this.isVisible = true
     }

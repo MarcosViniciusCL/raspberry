@@ -33,6 +33,10 @@ class ControllerListener(val controller: Controller): Observable() {
         server.pararServer()
     }
 
+    fun enviar(msg:String){
+        server.enviarBrodcast(msg)
+    }
+
 }
 
 private class Server(var port: Int, var cont: ControllerListener){
@@ -70,11 +74,17 @@ private class Server(var port: Int, var cont: ControllerListener){
     fun novoCliente(s: Socket){
         client.add(Cliente(s, cont))
     }
+
+    fun enviarBrodcast(msg: String){
+        client.forEach {
+            it.enviarMensagem(msg)
+        }
+    }
 }
 
 private class Cliente(var s: Socket, var controllerListener: ControllerListener) {
     var entrada = DataInputStream(s.getInputStream())
-    var saida   = ObjectOutputStream(s.getOutputStream())
+    var saida   = DataOutputStream(s.getOutputStream())
     var work = true
 
     init {
@@ -114,8 +124,13 @@ private class Cliente(var s: Socket, var controllerListener: ControllerListener)
     }
 
     fun enviarMensagem(msg: String){
-        saida.flush()
-        saida.write(msg.toByteArray())
+        try {
+            saida.write(msg.toByteArray())
+            close()
+        } catch (e: SocketException){
+            close()
+        }
+
     }
 
     fun close(){
@@ -124,5 +139,6 @@ private class Cliente(var s: Socket, var controllerListener: ControllerListener)
         s.close()
         work = false
         println("Cliente ${s.remoteSocketAddress} desconectado.")
+        controllerListener.novaComando("ZERA")
     }
 }

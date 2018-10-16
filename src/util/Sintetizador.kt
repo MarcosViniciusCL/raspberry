@@ -26,5 +26,6 @@ class Sintetizador {
             executar(s)
             listener(i+1)
         })
+        listener(-1) // <-- Informa que a mensagem acabou
     }
 }
